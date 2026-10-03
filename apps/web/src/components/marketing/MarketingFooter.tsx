@@ -20,13 +20,27 @@ export function MarketingFooter() {
           <div key={title}>
             <p className="text-sm font-semibold text-navy">{title}</p>
             <ul className="mt-3 space-y-2">
-              {links.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="text-sm text-text-secondary hover:text-navy">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {links.map((link) => {
+                const isExt = link.href.startsWith("http");
+                return (
+                  <li key={link.label}>
+                    {isExt ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-text-secondary hover:text-navy"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href} className="text-sm text-text-secondary hover:text-navy">
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

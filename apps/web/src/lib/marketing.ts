@@ -14,6 +14,7 @@ export const marketing = {
   },
   nav: {
     links: [
+      { label: "Main Platform", href: "https://clivora.io", external: true, badge: "clivora.io", children: noChildren },
       { label: "Jobs", href: "/jobs", children: noChildren },
       { label: "Connect", href: "/connect", children: noChildren },
       { label: "Community edition", href: "/edition", children: noChildren },
@@ -32,6 +33,7 @@ export const marketing = {
     blurb: "CLIVORA Community: open-source CRM, projects, invoices, timesheets and private hiring for freelancers and clients. Licensed under AGPL-3.0.",
     columns: {
       Product: [
+        { label: "Official Clivora (clivora.io)", href: "https://clivora.io" },
         { label: "Jobs", href: "/jobs" },
         { label: "Connect", href: "/connect" },
         { label: "Sign in", href: "/login" },

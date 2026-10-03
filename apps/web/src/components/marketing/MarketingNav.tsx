@@ -149,6 +149,18 @@ export function MarketingNav({ variant = "light" }: { variant?: "light" | "overl
 
   return (
     <>
+      <div className="relative z-50 bg-[#0F172A] px-4 py-2 text-center text-xs font-medium text-slate-300 border-b border-slate-800">
+        <span>You are exploring the open-source community demo. Looking for the production platform? </span>
+        <a
+          href="https://clivora.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-bold text-teal-400 underline underline-offset-2 hover:text-teal-300 inline-flex items-center gap-1 ml-1"
+        >
+          <span>Switch to clivora.io</span>
+          <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
       <header
         className={cn(
           "sticky top-0 z-50 transition-all duration-300",

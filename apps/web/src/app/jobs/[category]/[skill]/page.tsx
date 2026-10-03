@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     // Programmatic skill pages repeat one template with a filtered job list; keep them
     // out of the index so the site is judged on its original content.
-    robots: { index: false, follow: true },
+    robots: { index: false, follow: false },
     alternates: { canonical: `${site.url}/jobs/${category}/${skill}` },
     openGraph: { title, description },
   };
