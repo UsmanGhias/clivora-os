@@ -13,5 +13,8 @@ export function getPublicSiteUrl(): string {
     const withScheme = vercel.startsWith("http") ? vercel : `https://${vercel}`;
     return withScheme.replace(/\/+$/, "");
   }
+  if (process.env.NODE_ENV === "production") {
+    return "https://demo.clivora.io";
+  }
   return "http://localhost:3000";
 }
