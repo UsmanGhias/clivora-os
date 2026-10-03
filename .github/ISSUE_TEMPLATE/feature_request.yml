@@ -1,0 +1,45 @@
+name: Feature proposal
+description: Propose an improvement for freelancers, clients, or contributors
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Describe the real problem before proposing a solution.
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Primary audience
+      options:
+        - Freelancers
+        - Clients
+        - Agencies or teams
+        - Administrators
+        - Contributors
+        - Multiple groups
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: safety
+    attributes:
+      label: Privacy, security, fairness, and AI considerations
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to help design, test, document, or implement this feature.

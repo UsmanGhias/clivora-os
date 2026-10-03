@@ -1,0 +1,33 @@
+# Supabase CLI configuration for local development.
+# `supabase start` reads this file; defaults apply to anything not listed.
+project_id = "clivora-os"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3000/auth/reset-password"]
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[functions.send-clivora-email]
+verify_jwt = true
+
+[functions.send-invoice-reminders]
+verify_jwt = false
+
+[functions.send-push]
+verify_jwt = true

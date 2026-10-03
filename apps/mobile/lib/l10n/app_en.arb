@@ -1,0 +1,34 @@
+{
+  "@@locale": "en",
+  "appTitle": "CLIVORA",
+  "dashboardGreeting": "Your business command center",
+  "navDashboard": "Dashboard",
+  "navProjects": "Projects",
+  "navCustomers": "Clients",
+  "navInvoices": "Invoices",
+  "navMore": "More",
+  "searchWorkspace": "Search workspace",
+  "quickActionClient": "Client",
+  "quickActionProject": "Project",
+  "quickActionInvoice": "Invoice",
+  "quickActionTask": "Task",
+  "settingsLanguage": "Language",
+  "languageEnglish": "English",
+  "languageUrdu": "Urdu",
+  "coachMarkStatsTitle": "Your stats at a glance",
+  "coachMarkStatsBody": "Revenue, clients, projects, and invoices update here as you work.",
+  "coachMarkQuickTitle": "Quick actions",
+  "coachMarkQuickBody": "Add a client, project, invoice, or task in one tap.",
+  "coachMarkSearchTitle": "Search everything",
+  "coachMarkSearchBody": "Find clients, projects, invoices, and messages from one place.",
+  "coachMarkDone": "Got it",
+  "coachMarkNext": "Next",
+  "offlineBanner": "You are offline. Changes will sync when connected.",
+  "taskReminderTitle": "Task due",
+  "taskReminderBody": "{taskTitle} is due today",
+  "@taskReminderBody": {
+    "placeholders": {
+      "taskTitle": {"type": "String"}
+    }
+  }
+}

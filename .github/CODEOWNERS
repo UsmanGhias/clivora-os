@@ -1,0 +1,10 @@
+# Founder-led review while the maintainer team grows
+* @UsmanGhias
+
+# Database security and project policy
+/supabase/migrations/ @UsmanGhias
+/.github/ @UsmanGhias
+/SECURITY.md @UsmanGhias
+/GOVERNANCE.md @UsmanGhias
+/TRADEMARKS.md @UsmanGhias
+/LICENSE @UsmanGhias
