@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
+import { GoogleAnalytics } from "@/components/common/GoogleAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -47,6 +48,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className="min-h-screen overflow-x-hidden font-sans">{children}</body>
     </html>
   );
