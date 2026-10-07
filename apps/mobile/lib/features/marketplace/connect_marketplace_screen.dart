@@ -550,8 +550,8 @@ class _ConnectMarketplaceScreenState
         avgRating: null,
         reviewCount: null,
         verified: false,
-        sourceUrl: row['source_url'] as String?,
-        isExternal: row['is_external'] == true,
+        sourceUrl: null,
+        isExternal: false,
         ctaLabel: canApply ? 'Apply via CLIVORA (\$0 Platform Fee)' : null,
         onCta: canApply
             ? () {
@@ -1959,20 +1959,7 @@ class _ConnectDetailSheet extends StatelessWidget {
                   ],
                 ),
               ],
-              if (sourceUrl != null && sourceUrl!.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => launchUrl(
-                      Uri.parse(sourceUrl!),
-                      mode: LaunchMode.externalApplication,
-                    ),
-                    icon: const Icon(Icons.open_in_new, size: 16),
-                    label: const Text('Open Official Employer Portal'),
-                  ),
-                ),
-              ],
+
               if (ctaLabel != null && onCta != null) ...[
                 const SizedBox(height: 12),
                 SizedBox(
