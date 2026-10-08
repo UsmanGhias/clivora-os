@@ -1,17 +1,14 @@
-import Script from "next/script";
-
 export function GoogleAnalytics() {
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-E7X2Q9V61P";
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-NWRF8EF0J3";
 
   return (
     <>
-      <Script
-        strategy="afterInteractive"
+      <script
+        async
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
       />
-      <Script
+      <script
         id="google-analytics"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
