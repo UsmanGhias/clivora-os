@@ -35,7 +35,7 @@ dependencies:
   in_app_update: ^4.2.3
   connectivity_plus: ^6.1.4
   flutter_local_notifications: ^18.0.1
-  cached_network_image: ^3.4.1
+  cached_network_image: ^4.0.4
   shimmer: ^3.0.0
   local_auth: ^2.3.0
   lottie: ^3.3.1
