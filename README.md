@@ -105,6 +105,14 @@ supabase/           migrations, edge functions, SQL tests
 docs/               architecture and self-hosting guides
 ```
 
+## Who built this
+
+CLIVORA is built and maintained by [Usman Ghias](https://usmanghias.co.uk), founder of [CODCrafters](https://codcrafters.org) and an Odoo and backend engineer based in Pakistan. It started as the software I wanted for my own freelance work, and it became my MSSE capstone at Quantic School of Business and Technology.
+
+The offline sync engine is described in my paper, [Durable Edge-Outbox Synchronization: Managing Relational Divergence in Intermittent Mobile Enterprise Workloads](https://doi.org/10.5281/zenodo.22843765). GitHub's "Cite this repository" button gives you the reference.
+
+I am open to Odoo architect and senior backend roles, and to PhD positions in distributed systems. Reach me at [iusmanghias@gmail.com](mailto:iusmanghias@gmail.com) or on [LinkedIn](https://www.linkedin.com/in/iusmanghias).
+
 ## Contributing
 
 Contributions of every size are welcome: code, tests, translations, documentation and design. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and look for issues labelled `good first issue`.

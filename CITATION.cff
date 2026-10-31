@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software or its sync design, please cite the paper below."
+title: "CLIVORA Community"
+type: software
+authors:
+  - family-names: "Khan"
+    given-names: "Muhammad Usman"
+    alias: "Usman Ghias"
+    website: "https://usmanghias.co.uk"
+repository-code: "https://github.com/UsmanGhias/clivora-os"
+url: "https://demo.clivora.io"
+license: AGPL-3.0-only
+keywords:
+  - offline-first
+  - transactional-outbox
+  - flutter
+  - supabase
+preferred-citation:
+  type: article
+  title: "Durable Edge-Outbox Synchronization: Managing Relational Divergence in Intermittent Mobile Enterprise Workloads"
+  authors:
+    - family-names: "Khan"
+      given-names: "Muhammad Usman"
+  year: 2026
+  month: 9
+  publisher:
+    name: "Zenodo"
+  doi: "10.5281/zenodo.22843765"
