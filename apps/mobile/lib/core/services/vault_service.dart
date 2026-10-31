@@ -101,7 +101,7 @@ class VaultService {
         return VaultSaveResult.failed('Download failed (${response.statusCode})');
       }
       final ext = url.contains('.png') ? '.png' : '.jpg';
-      return archiveChatImageBytes(bytes: response.bodyBytes, plan: plan, ext: ext);
+      return await archiveChatImageBytes(bytes: response.bodyBytes, plan: plan, ext: ext);
     } catch (e) {
       debugPrint('Vault archive from URL: $e');
       return VaultSaveResult.failed('$e');
