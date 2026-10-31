@@ -52,17 +52,12 @@ export async function POST(request: Request) {
       timelineDays?: number;
       pitchMessage?: string;
       jobTitle?: string;
-      testRecipientEmail?: string;
     };
 
     const proposalId = body.proposalId;
     if (!proposalId) {
       return NextResponse.json({ error: "missing_proposal_id" }, { status: 400 });
     }
-
-    // Generate unique review token
-    const reviewToken = crypto.randomUUID();
-    const reviewUrl = `${getPublicSiteUrl()}/connect/review?token=${reviewToken}`;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -72,6 +67,24 @@ export async function POST(request: Request) {
       supabaseUrl && serviceRoleKey
         ? createServiceClient(supabaseUrl, serviceRoleKey)
         : supabase;
+
+    // Only the freelancer who owns a proposal may send it or issue its review token.
+    const { data: existingProposal, error: proposalErr } = await adminDb
+      .from("connect_proposals")
+      .select("id, from_user_id")
+      .eq("id", proposalId)
+      .maybeSingle();
+
+    if (proposalErr || !existingProposal) {
+      return NextResponse.json({ error: "proposal_not_found" }, { status: 404 });
+    }
+
+    if (existingProposal.from_user_id !== user.id) {
+      return NextResponse.json({ error: "forbidden_proposal_access" }, { status: 403 });
+    }
+
+    const reviewToken = crypto.randomUUID();
+    const reviewUrl = `${getPublicSiteUrl()}/connect/review?token=${reviewToken}`;
 
     let targetEmail: string | null = body.companyEmail?.trim().toLowerCase() || null;
     let targetName: string = body.companyName?.trim() || "";
@@ -140,11 +153,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. QA Testing Hook: If testRecipientEmail is provided, route email to it for verification
-    if (body.testRecipientEmail && body.testRecipientEmail.includes("@")) {
-      targetEmail = body.testRecipientEmail.trim().toLowerCase();
-    }
-
     // Update proposal with review token and client metadata
     await adminDb
       .from("connect_proposals")
@@ -154,7 +162,8 @@ export async function POST(request: Request) {
         client_email: targetEmail,
         client_name: targetName || null,
       })
-      .eq("id", proposalId);
+      .eq("id", proposalId)
+      .eq("from_user_id", user.id);
 
     // Get freelancer's display name
     const { data: freelancerProfile } = await adminDb
