@@ -13,6 +13,8 @@ CLIVORA is two clients over one Supabase backend. All business data lives in Pos
 
 ## How the Android app syncs
 
+The design below is formalised in [Durable Edge-Outbox Synchronization](https://doi.org/10.5281/zenodo.22843765) by Muhammad Usman Khan (Usman Ghias).
+
 Every local change is written in the same SQLite transaction as an entry in a durable outbox (`sync_outbox_entries`). Each entry carries a client-generated UUID (`operation_id`) and the owning user, so the server can apply it exactly once even if the device retries after losing a response.
 
 A drain loop sends due entries to Supabase. Each entry moves through `pending`, `processing`, `retrying`, `conflicted`, `permanently_failed` or `completed`. Transient failures back off exponentially; entries whose kind is unrecognised are quarantined immediately so one bad entry cannot block the rest.

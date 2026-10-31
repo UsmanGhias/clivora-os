@@ -375,7 +375,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
           );
         }
 
-        return _createLocalAccount(
+        return await _createLocalAccount(
           name: displayName,
           email: email,
           password: '',
