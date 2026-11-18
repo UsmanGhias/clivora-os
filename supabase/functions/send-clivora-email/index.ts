@@ -22,6 +22,7 @@ const ALLOWED = new Set([
   "proposal_received",
 ]);
 const MONTHLY_LIMIT = 3000;
+const USER_DAILY_LIMIT = 50;
 
 type EmailBody = {
   to?: string;
@@ -145,7 +146,10 @@ serve(async (req) => {
 
   const html = renderTemplate(purpose, body);
   if (!html) {
-    return new Response(JSON.stringify({ error: "Missing template fields or html" }), { status: 400 });
+    return new Response(
+      JSON.stringify({ error: "Missing required template fields or invalid purpose" }),
+      { status: 400 },
+    );
   }
 
   const adminClient = serviceKey ? createClient(supabaseUrl, serviceKey) : null;
@@ -159,6 +163,21 @@ serve(async (req) => {
       .gte("sent_at", monthStart.toISOString());
     if ((count ?? 0) >= MONTHLY_LIMIT) {
       return new Response(JSON.stringify({ error: "Monthly email limit reached" }), { status: 429 });
+    }
+
+    if (!isServiceRole && senderUid) {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count: userDailyCount } = await adminClient
+        .from("email_send_log")
+        .select("id", { count: "exact", head: true })
+        .eq("sender_uid", senderUid)
+        .gte("sent_at", oneDayAgo);
+      if ((userDailyCount ?? 0) >= USER_DAILY_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: "Daily email limit reached for this account" }),
+          { status: 429 },
+        );
+      }
     }
   }
 

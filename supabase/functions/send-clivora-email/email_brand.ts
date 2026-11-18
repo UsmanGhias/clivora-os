@@ -23,6 +23,33 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function sanitizeUrl(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  try {
+    const trimmed = raw.trim();
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      return undefined;
+    }
+    const allowedHosts = new Set([
+      "clivora.io",
+      "www.clivora.io",
+      "play.google.com",
+    ]);
+    try {
+      const brandHost = new URL(BRAND.webUrl).hostname.toLowerCase();
+      if (brandHost) allowedHosts.add(brandHost);
+    } catch (_) {}
+
+    if (!allowedHosts.has(parsed.hostname.toLowerCase())) {
+      return undefined;
+    }
+    return escapeHtml(parsed.toString());
+  } catch {
+    return undefined;
+  }
+}
+
 function featureList(items: string[]): string {
   const lis = items.map((item) => `<li style="margin-bottom:8px;">${item}</li>`).join("");
   return `<ul style="padding-left:18px;margin:16px 0;color:#334155;">${lis}</ul>`;
@@ -47,17 +74,20 @@ export function wrapBrandedEmail(opts: {
       ? `linear-gradient(135deg,${BRAND.navy} 0%,#1e293b 100%)`
       : `linear-gradient(135deg,${BRAND.navy} 0%,${BRAND.primary} 100%)`;
 
+  const safeCtaUrl = sanitizeUrl(opts.ctaUrl);
+  const safeSecondaryCtaUrl = sanitizeUrl(opts.secondaryCtaUrl);
+
   const primaryCta =
-    opts.ctaLabel && opts.ctaUrl
+    opts.ctaLabel && safeCtaUrl
       ? `<p style="margin:28px 0 0;text-align:center;">
-          <a href="${opts.ctaUrl}" style="display:inline-block;background:${BRAND.primary};color:#fff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:12px;font-size:15px;box-shadow:0 4px 14px rgba(108,60,225,0.35);">${escapeHtml(opts.ctaLabel)}</a>
+          <a href="${safeCtaUrl}" style="display:inline-block;background:${BRAND.primary};color:#fff;text-decoration:none;font-weight:700;padding:14px 28px;border-radius:12px;font-size:15px;box-shadow:0 4px 14px rgba(108,60,225,0.35);">${escapeHtml(opts.ctaLabel)}</a>
         </p>`
       : "";
 
   const secondaryCta =
-    opts.secondaryCtaLabel && opts.secondaryCtaUrl
+    opts.secondaryCtaLabel && safeSecondaryCtaUrl
       ? `<p style="margin:12px 0 0;text-align:center;">
-          <a href="${opts.secondaryCtaUrl}" style="color:${BRAND.primary};text-decoration:none;font-weight:600;font-size:14px;">${escapeHtml(opts.secondaryCtaLabel)}</a>
+          <a href="${safeSecondaryCtaUrl}" style="color:${BRAND.primary};text-decoration:none;font-weight:600;font-size:14px;">${escapeHtml(opts.secondaryCtaLabel)}</a>
         </p>`
       : "";
 
@@ -382,5 +412,5 @@ export function renderTemplate(
   if (purpose === "job_claim" && payload.companyName && payload.jobTitle && payload.claimUrl) {
     return jobClaimTemplate(payload.companyName, payload.jobTitle, payload.claimUrl);
   }
-  return payload.html ?? "";
+  return "";
 }
