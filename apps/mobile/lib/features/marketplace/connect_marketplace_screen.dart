@@ -423,18 +423,16 @@ class _ConnectMarketplaceScreenState
   Future<void> _contactNeed(Map<String, dynamic> row) async {
     final isCrawled = row['is_crawled_job'] == true;
     final companyName = row['company_name'] as String?;
-    final message = await _askMessage(
-      isCrawled
-          ? 'Pitch your fit for ${companyName ?? 'this role'}. Keep 100% of your earnings (\$0 Platform Fee).'
-          : 'Pitch your fit for this need. Stay anonymous for now.',
-    );
-    if (message == null || message.isEmpty) return;
-    try {
-      final svc = ref.read(connectMarketplaceServiceProvider);
-      if (isCrawled) {
+
+    if (isCrawled) {
+      final details = await _askProposalDetails(companyName ?? 'this role');
+      if (details == null) return;
+      try {
+        final svc = ref.read(connectMarketplaceServiceProvider);
         await svc.submitJobProposal(
           jobId: row['id'] as String,
-          message: message,
+          message: details.message,
+          amount: details.amount,
           companyName: companyName,
           companyEmail: row['company_email'] as String?,
         );
@@ -446,27 +444,100 @@ class _ConnectMarketplaceScreenState
           );
           await _reload();
         }
-      } else {
-        await svc.sendContactRequest(
-          toUserId: row['client_user_id'] as String,
-          targetNeedId: row['id'] as String?,
-          message: message,
-        );
-        await svc.logConnectEvent('connect_need_pitch_sent');
+      } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Pitch sent anonymously.')),
-          );
-          await _reload();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
         }
+      }
+      return;
+    }
+
+    final message = await _askMessage(
+      'Pitch your fit for this need. Stay anonymous for now.',
+    );
+    if (message == null || message.isEmpty) return;
+    try {
+      final svc = ref.read(connectMarketplaceServiceProvider);
+      await svc.sendContactRequest(
+        toUserId: row['client_user_id'] as String,
+        targetNeedId: row['id'] as String?,
+        message: message,
+      );
+      await svc.logConnectEvent('connect_need_pitch_sent');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pitch submitted! Client will be notified.'),
+          ),
+        );
+        await _reload();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
       }
     }
+  }
+
+  Future<({String message, double amount})?> _askProposalDetails(String companyName) async {
+    final msgCtrl = TextEditingController();
+    final amtCtrl = TextEditingController(text: '250');
+    return showDialog<({String message, double amount})>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Apply to $companyName (\$0 Fee)'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: amtCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Proposed Bid (USD)',
+                prefixText: '\$ ',
+                hintText: 'e.g. 250',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: msgCtrl,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Cover Note & Experience',
+                hintText: 'Pitch your experience and portfolio links...',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final amt = double.tryParse(amtCtrl.text.trim()) ?? 0;
+              final msg = msgCtrl.text.trim();
+              if (amt <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a bid amount greater than \$0.')),
+                );
+                return;
+              }
+              if (msg.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a cover pitch.')),
+                );
+                return;
+              }
+              Navigator.pop(ctx, (message: msg, amount: amt));
+            },
+            child: const Text('Submit Proposal'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<String?> _askMessage(String hint) async {
@@ -1160,7 +1231,6 @@ class _NeedFeedRow extends StatelessWidget {
     final summary = row['summary'] as String? ?? '';
     final budget = row['budget_band'] as String? ?? 'Negotiable';
     final skills = _stringList(row['skills']);
-    final skillLine = skills.take(3).where((s) => s.trim().isNotEmpty).join(' · ');
 
     return Material(
       color: Colors.transparent,
@@ -1266,19 +1336,54 @@ class _NeedFeedRow extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.25), width: 0.6),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.circle, size: 5, color: Color(0xFF059669)),
+                              SizedBox(width: 3.5),
+                              Text(
+                                'Fresh',
+                                style: TextStyle(
+                                  color: Color(0xFF047857),
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    if (skillLine.isNotEmpty)
-                      Text(
-                        skillLine,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: onSurface.withValues(alpha: 0.5),
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    if (skills.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: skills.take(4).map((s) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: onSurface.withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            s,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: onSurface.withValues(alpha: 0.75),
+                            ),
+                          ),
+                        )).toList(),
                       ),
+                    ],
                   ],
                 ),
               ),
