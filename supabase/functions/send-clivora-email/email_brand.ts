@@ -35,6 +35,8 @@ function sanitizeUrl(raw: string | undefined): string | undefined {
       "clivora.io",
       "www.clivora.io",
       "play.google.com",
+      "usmanghias.co.uk",
+      "www.usmanghias.co.uk",
     ]);
     try {
       const brandHost = new URL(BRAND.webUrl).hostname.toLowerCase();

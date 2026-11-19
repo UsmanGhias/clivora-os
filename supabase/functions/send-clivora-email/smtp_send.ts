@@ -14,8 +14,9 @@ function env(name: string, fallback = ""): string {
   return (Deno.env.get(name) ?? fallback).trim();
 }
 
-export function smtpConfigured(): boolean {
+export function smtpConfigured(overrideResendKey?: string): boolean {
   return Boolean(
+    overrideResendKey ||
     env("RESEND_API_KEY") ||
     (env("SMTP_HOST") && env("SMTP_USER") && env("SMTP_PASS"))
   );
@@ -40,9 +41,9 @@ function dotStuff(body: string): string {
 }
 
 /** Primary: Resend API over HTTPS. Fallback: minimal SMTP over TLS (implicit TLS, usually port 465). */
-export async function sendSmtpEmail(input: SmtpSendInput): Promise<void> {
+export async function sendSmtpEmail(input: SmtpSendInput, overrideResendKey?: string): Promise<void> {
   const fromRaw = smtpFromAddress();
-  const resendApiKey = env("RESEND_API_KEY");
+  const resendApiKey = overrideResendKey || env("RESEND_API_KEY");
 
   // Prefer Resend when configured; it avoids mailbox sending limits.
   if (resendApiKey) {
