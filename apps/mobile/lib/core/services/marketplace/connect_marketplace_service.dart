@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:drift/drift.dart' show Value;
-import '../../constants/admin_config.dart';
 
 import '../../auth/auth_service.dart';
 import '../../auth/user_roles.dart';
@@ -317,9 +316,12 @@ class ConnectMarketplaceService {
     required String message,
     String? companyName,
     String? companyEmail,
-    double amount = 0,
+    required double amount,
     int timelineDays = 7,
   }) async {
+    if (amount <= 0) {
+      throw ArgumentError('Proposal amount must be greater than zero.');
+    }
     final auth = await _requireAuthedClient();
     final c = auth.client;
     final uid = auth.uid;
@@ -351,7 +353,7 @@ class ConnectMarketplaceService {
           'amount': amount,
           'timelineDays': timelineDays,
           'pitchMessage': message.trim(),
-          'reviewUrl': '$kClivoraWebBaseUrl/connect/review?token=$reviewToken',
+          'reviewUrl': 'https://clivora.io/connect/review?token=$reviewToken',
         });
       } catch (err) {
         debugPrint('[submitJobProposal] email notification note: $err');
