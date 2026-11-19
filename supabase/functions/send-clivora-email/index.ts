@@ -66,11 +66,34 @@ serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-  if (!smtpConfigured()) {
+  let resendApiKey = (Deno.env.get("RESEND_API_KEY") ?? "").trim();
+  let cronSecret = (Deno.env.get("CRON_SECRET") ?? "").trim();
+
+  if ((!resendApiKey || !cronSecret) && serviceKey && supabaseUrl) {
+    try {
+      const adminDb = createClient(supabaseUrl, serviceKey);
+      const { data: secRows } = await adminDb
+        .from("_internal_secrets")
+        .select("key, value")
+        .in("key", ["resend_api_key", "cron_secret"]);
+      if (secRows) {
+        for (const row of secRows) {
+          if (row.key === "resend_api_key" && !resendApiKey && row.value) {
+            resendApiKey = row.value as string;
+          }
+          if (row.key === "cron_secret" && !cronSecret && row.value) {
+            cronSecret = row.value as string;
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  if (!smtpConfigured(resendApiKey)) {
     return new Response(
       JSON.stringify({
         error:
-          "Email not configured. Set RESEND_API_KEY or SMTP_HOST, SMTP_USER, SMTP_PASS on Edge Function secrets.",
+          "Email not configured. Set RESEND_API_KEY or SMTP_HOST, SMTP_USER, SMTP_PASS on Edge Function secrets or _internal_secrets.",
       }),
       { status: 503 },
     );
@@ -80,17 +103,6 @@ serve(async (req) => {
   const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
   if (!bearer) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  }
-
-  let cronSecret = Deno.env.get("CRON_SECRET") ?? "";
-  if (!cronSecret && serviceKey && supabaseUrl) {
-    const adminDb = createClient(supabaseUrl, serviceKey);
-    const { data: secRow } = await adminDb
-      .from("_internal_secrets")
-      .select("value")
-      .eq("key", "cron_secret")
-      .maybeSingle();
-    if (secRow?.value) cronSecret = secRow.value as string;
   }
 
   let senderUid: string | null = null;
@@ -182,7 +194,7 @@ serve(async (req) => {
   }
 
   try {
-    await sendSmtpEmail({ to, subject, html });
+    await sendSmtpEmail({ to, subject, html }, resendApiKey);
     if (adminClient) {
       await adminClient.from("email_send_log").insert({
         purpose,
